@@ -3,10 +3,26 @@ version: 0.1.0
 license: MIT
 compat:
   pints-core-sql: ">=1.0,<2.0"
-files:
-  schema: plugin.sql
-  materialize: materialize.sql
-  export: export.sql
-description: >
-  Minimal intra-run component mapping that assigns a component ID to each feature
-  within a run. Stores sample_id, run_id, feature_id, intra_run_component_id.
+
+schema: plugin.sql   # applied by "plugin install"
+
+staging:
+  table: staging_intra_run_components
+  columns:
+    - { name: run_id, type: TEXT }
+    - { name: feature_id, type: TEXT }
+    - { name: intra_run_component_id, type: TEXT }
+  load:
+    csv:
+      header: true          # default expected
+      delimiter: ","        # default
+      autodetect: true
+
+actions:
+  - name: materialize
+    file: materialize.sql   # INSERT/UPDATEs using staging table
+    params: []              # optional named params, see below
+
+  - name: export
+    file: export.sql        # SELECT … (CSV-ready)
+    kind: select            # "select" | "update" (defaults to detect)
