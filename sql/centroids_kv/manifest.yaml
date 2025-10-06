@@ -1,0 +1,31 @@
+name: centroids_kv
+version: 0.1.0
+license: MIT
+compat:
+  pints-core-sql: ">=1.0,<2.0"
+
+schema: plugin.sql
+
+staging:
+  table: staging_centroids_kv
+  columns:
+        - { name: sample_id, type: TEXT }
+        - { name: run_id, type: TEXT }
+        - { name: step_id, type: TEXT }
+        - { name: centroid_id, type: BIGINT }
+        - { name: prop_key, type: TEXT }
+        - { name: value, type: DOUBLE }
+
+  load:
+    header: true
+    delimiter: ","
+    autodetect: true
+
+actions:
+  - name: materialize
+    file: materialize.sql
+  - name: export
+    file: export.sql
+    kind: select
+  - name: to_parquet
+    file: to_parquet.sql
